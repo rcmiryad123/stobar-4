@@ -7,9 +7,12 @@ class Product {
     }
     
     public function getAll() {
-        $query = 'SELECT p.id, p.name, p.description, p.unit, p.min_stock, cs.current_quantity 
-                 FROM products p 
-                 LEFT JOIN current_stock cs ON p.id = cs.id 
+        $query = 'SELECT p.id, p.name, p.description, p.unit, p.min_stock,
+                 (COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) -
+                 COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0)) as current_quantity
+                 FROM products p
+                 LEFT JOIN stock_movements sm ON p.id = sm.product_id
+                 GROUP BY p.id, p.name, p.description, p.unit, p.min_stock
                  ORDER BY p.name';
         $stmt = $this->conn->prepare($query);
         $stmt->execute();

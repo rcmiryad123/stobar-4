@@ -52,11 +52,16 @@ if ($report_type === 'movement') {
     $stmt->close();
 } else if ($report_type === 'low_stock') {
     // Get low stock report
-    $stmt = $conn->prepare('SELECT p.name, cs.current_quantity, p.min_stock, p.unit, 
-                           (cs.current_quantity - p.min_stock) as stock_difference 
-                           FROM products p 
-                           JOIN current_stock cs ON p.id = cs.id 
-                           WHERE cs.current_quantity <= p.min_stock * 1.2 
+    $stmt = $conn->prepare('SELECT p.name,
+                           (COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) -
+                           COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0)) as current_quantity,
+                           p.min_stock, p.unit,
+                           (COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) -
+                           COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0) - p.min_stock) as stock_difference
+                           FROM products p
+                           LEFT JOIN stock_movements sm ON p.id = sm.product_id
+                           GROUP BY p.id, p.name, p.min_stock, p.unit
+                           HAVING current_quantity <= p.min_stock * 1.2
                            ORDER BY stock_difference ASC');
     $stmt->execute();
     $report_data = $stmt->get_result();

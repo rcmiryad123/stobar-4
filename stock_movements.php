@@ -93,7 +93,7 @@ if (isset($_GET['message']) && isset($_GET['type'])) {
 if (isset($_GET['product_id'])) {
     $product_id = (int)$_GET['product_id'];
     
-    $stmt = $conn->prepare('SELECT p.id, p.name, p.unit, cs.current_quantity FROM products p LEFT JOIN current_stock cs ON p.id = cs.id WHERE p.id = ?');
+    $stmt = $conn->prepare('SELECT p.id, p.name, p.unit, (COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0)) as current_quantity FROM products p LEFT JOIN stock_movements sm ON p.id = sm.product_id WHERE p.id = ? GROUP BY p.id, p.name, p.unit');
     $stmt->bind_param('i', $product_id);
     $stmt->execute();
     $result = $stmt->get_result();

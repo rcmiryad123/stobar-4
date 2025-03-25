@@ -28,14 +28,14 @@ $total_products = $result->fetch_assoc()['total'];
 $stmt->close();
 
 // Get low stock products count
-$stmt = $conn->prepare('SELECT COUNT(*) as low_stock FROM current_stock WHERE current_quantity <= min_stock');
+$stmt = $conn->prepare('SELECT COUNT(*) as low_stock FROM products p LEFT JOIN stock_movements sm ON p.id = sm.product_id GROUP BY p.id, p.min_stock, p.min_stock, p.min_stock HAVING COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0) <= p.min_stock');
 $stmt->execute();
 $result = $stmt->get_result();
 $low_stock = $result->fetch_assoc()['low_stock'];
 $stmt->close();
 
-// Get total stock value (just a placeholder for this example)
-$stmt = $conn->prepare('SELECT SUM(current_quantity) as total_items FROM current_stock');
+// Get total stock value
+$stmt = $conn->prepare('SELECT SUM(total_quantity) as total_items FROM (SELECT COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0) as total_quantity FROM products p LEFT JOIN stock_movements sm ON p.id = sm.product_id GROUP BY p.id) as subquery');
 $stmt->execute();
 $result = $stmt->get_result();
 $total_items = $result->fetch_assoc()['total_items'];
@@ -52,10 +52,13 @@ $recent_movements = $stmt->get_result();
 $stmt->close();
 
 // Get low stock products
-$stmt = $conn->prepare('SELECT cs.id, cs.name, cs.current_quantity, cs.min_stock, cs.unit 
-                       FROM current_stock cs 
-                       WHERE cs.current_quantity <= cs.min_stock 
-                       ORDER BY (cs.min_stock - cs.current_quantity) DESC');
+$stmt = $conn->prepare('SELECT p.id, p.name, 
+                        (COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0)) as current_quantity, 
+                        p.min_stock, p.unit 
+                       FROM products p LEFT JOIN stock_movements sm ON p.id = sm.product_id 
+                       GROUP BY p.id 
+                       HAVING current_quantity <= p.min_stock 
+                       ORDER BY (p.min_stock - current_quantity) DESC');
 $stmt->execute();
 $low_stock_products = $stmt->get_result();
 $stmt->close();
@@ -65,7 +68,7 @@ $stmt = $conn->prepare('SELECT p.name,
                         COALESCE(AVG(sm.quantity), 0) as avg_usage 
                         FROM products p 
                         LEFT JOIN stock_movements sm ON p.id = sm.product_id AND sm.type = "out" 
-                        GROUP BY p.id 
+                        GROUP BY p.id, p.min_stock, p.min_stock, p.min_stock 
                         ORDER BY avg_usage DESC 
                         LIMIT 5');
 $stmt->execute();
@@ -82,14 +85,14 @@ while ($row = $usage_data->fetch_assoc()) {
 }
 
 // Get prediction data (days until depletion)
-$stmt = $conn->prepare('SELECT p.id, p.name, cs.current_quantity, 
+$stmt = $conn->prepare('SELECT p.id, p.name, 
+                        (COALESCE(SUM(CASE WHEN sm.type = "in" THEN sm.quantity ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0)) as current_quantity, 
                         COALESCE(AVG(CASE WHEN sm.type = "out" THEN sm.quantity ELSE 0 END), 0.1) as avg_daily_usage 
                         FROM products p 
-                        JOIN current_stock cs ON p.id = cs.id 
                         LEFT JOIN stock_movements sm ON p.id = sm.product_id 
                         GROUP BY p.id 
-                        HAVING cs.current_quantity > 0 
-                        ORDER BY (cs.current_quantity / avg_daily_usage) ASC 
+                        HAVING current_quantity > 0 
+                        ORDER BY (current_quantity / avg_daily_usage) ASC 
                         LIMIT 5');
 $stmt->execute();
 $prediction_result = $stmt->get_result();

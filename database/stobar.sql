@@ -15,22 +15,7 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
---
--- Temporary view structure for view `current_stock`
---
 
-DROP TABLE IF EXISTS `current_stock`;
-/*!50001 DROP VIEW IF EXISTS `current_stock`*/;
-SET @saved_cs_client     = @@character_set_client;
-/*!50503 SET character_set_client = utf8mb4 */;
-/*!50001 CREATE VIEW `current_stock` AS SELECT 
- 1 AS `id`,
- 1 AS `name`,
- 1 AS `description`,
- 1 AS `unit`,
- 1 AS `min_stock`,
- 1 AS `current_quantity`*/;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `products`
@@ -127,22 +112,9 @@ UNLOCK TABLES;
 --
 
 --
--- Final view structure for view `current_stock`
 --
 
-/*!50001 DROP VIEW IF EXISTS `current_stock`*/;
-/*!50001 SET @saved_cs_client          = @@character_set_client */;
-/*!50001 SET @saved_cs_results         = @@character_set_results */;
-/*!50001 SET @saved_col_connection     = @@collation_connection */;
-/*!50001 SET character_set_client      = utf8mb4 */;
-/*!50001 SET character_set_results     = utf8mb4 */;
-/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
-/*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
-/*!50001 VIEW `current_stock` AS select `p`.`id` AS `id`,`p`.`name` AS `name`,`p`.`description` AS `description`,`p`.`unit` AS `unit`,`p`.`min_stock` AS `min_stock`,(coalesce(sum((case when (`sm`.`type` = 'in') then `sm`.`quantity` else 0 end)),0) - coalesce(sum((case when (`sm`.`type` = 'out') then `sm`.`quantity` else 0 end)),0)) AS `current_quantity` from (`products` `p` left join `stock_movements` `sm` on((`p`.`id` = `sm`.`product_id`))) group by `p`.`id`,`p`.`name`,`p`.`description`,`p`.`unit`,`p`.`min_stock` */;
-/*!50001 SET character_set_client      = @saved_cs_client */;
-/*!50001 SET character_set_results     = @saved_cs_results */;
-/*!50001 SET collation_connection      = @saved_col_connection */;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
