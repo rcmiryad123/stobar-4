@@ -104,7 +104,7 @@ while ($row = $prediction_result->fetch_assoc()) {
     $days_left = $row['avg_daily_usage'] > 0 ? round($row['current_quantity'] / $row['avg_daily_usage']) : 9999;
     $prediction_labels[] = $row['name'];
     $prediction_data[] = $days_left;
-    
+
     // Set color based on days left
     if ($days_left <= 7) {
         $prediction_colors[] = 'rgba(220, 53, 69, 0.7)'; // Red for critical
@@ -117,15 +117,17 @@ while ($row = $prediction_result->fetch_assoc()) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Stock Inventory System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="vendor/font-index.css" rel="stylesheet">
+    <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="vendor/chart.js"></script>
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -133,7 +135,7 @@ while ($row = $prediction_result->fetch_assoc()) {
             <div class="logo">
                 <a href="index.php">STOBAR</a>
             </div>
-            
+
             <nav class="nav">
                 <div class="nav-item">
                     <a href="index.php" class="nav-link active">Dashboard</a>
@@ -145,12 +147,12 @@ while ($row = $prediction_result->fetch_assoc()) {
                     <a href="stock_movements.php" class="nav-link">Stock Movements</a>
                 </div>
                 <?php if ($role === 'admin'): ?>
-                <div class="nav-item">
-                    <a href="reports.php" class="nav-link">Reports</a>
-                </div>
+                    <div class="nav-item">
+                        <a href="reports.php" class="nav-link">Reports</a>
+                    </div>
                 <?php endif; ?>
             </nav>
-            
+
             <div class="user-info">
                 <span><?php echo htmlspecialchars($username); ?></span>
                 <span class="user-role"><?php echo ucfirst(htmlspecialchars($role)); ?></span>
@@ -158,7 +160,7 @@ while ($row = $prediction_result->fetch_assoc()) {
             </div>
         </div>
     </header>
-    
+
     <!-- Main Content -->
     <main class="main-content">
         <div class="container">
@@ -169,95 +171,95 @@ while ($row = $prediction_result->fetch_assoc()) {
                     <div class="stat-value"><?php echo $total_products; ?></div>
                     <div class="stat-description">Different products in inventory</div>
                 </div>
-                
+
                 <div class="stat-card">
                     <h3 class="stat-title">Low Stock Items</h3>
                     <div class="stat-value"><?php echo $low_stock; ?></div>
                     <div class="stat-description">Products below minimum stock level</div>
                 </div>
-                
+
                 <div class="stat-card">
                     <h3 class="stat-title">Total Items</h3>
                     <div class="stat-value"><?php echo $total_items; ?></div>
                     <div class="stat-description">Total items in inventory</div>
                 </div>
             </div>
-            
+
             <!-- Low Stock Products -->
             <div class="data-section">
                 <div class="section-header">
                     <h2 class="section-title">Low Stock Products</h2>
                     <?php if ($role === 'admin'): ?>
-                    <a href="stock_movements.php?action=add&type=in" class="btn btn-primary btn-icon">
-                        <i class="fas fa-plus"></i> Add Stock
-                    </a>
+                        <a href="stock_movements.php?action=add&type=in" class="btn btn-primary btn-icon">
+                            <i class="fas fa-plus"></i> Add Stock
+                        </a>
                     <?php endif; ?>
                 </div>
-                
+
                 <?php if ($low_stock_products->num_rows > 0): ?>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Current Stock</th>
-                                <th>Minimum Stock</th>
-                                <th>Unit</th>
-                                <th>Status</th>
-                                <?php if ($role === 'admin'): ?>
-                                <th>Action</th>
-                                <?php endif; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($product = $low_stock_products->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                <td><?php echo $product['current_quantity']; ?></td>
-                                <td><?php echo $product['min_stock']; ?></td>
-                                <td><?php echo htmlspecialchars($product['unit']); ?></td>
-                                <td>
-                                    <?php 
-                                    $status_class = 'status-low';
-                                    $status_text = 'Critical';
-                                    
-                                    if ($product['current_quantity'] > 0) {
-                                        $status_class = 'status-medium';
-                                        $status_text = 'Low';
-                                    }
-                                    ?>
-                                    <span class="status <?php echo $status_class; ?>"><?php echo $status_text; ?></span>
-                                </td>
-                                <?php if ($role === 'admin'): ?>
-                                <td>
-                                    <a href="stock_movements.php?action=add&type=in&product_id=<?php echo $product['id']; ?>" class="btn btn-sm btn-primary">Add Stock</a>
-                                </td>
-                                <?php endif; ?>
-                            </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Current Stock</th>
+                                    <th>Minimum Stock</th>
+                                    <th>Unit</th>
+                                    <th>Status</th>
+                                    <?php if ($role === 'admin'): ?>
+                                        <th>Action</th>
+                                    <?php endif; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($product = $low_stock_products->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                        <td><?php echo $product['current_quantity']; ?></td>
+                                        <td><?php echo $product['min_stock']; ?></td>
+                                        <td><?php echo htmlspecialchars($product['unit']); ?></td>
+                                        <td>
+                                            <?php
+                                            $status_class = 'status-low';
+                                            $status_text = 'Critical';
+
+                                            if ($product['current_quantity'] > 0) {
+                                                $status_class = 'status-medium';
+                                                $status_text = 'Low';
+                                            }
+                                            ?>
+                                            <span class="status <?php echo $status_class; ?>"><?php echo $status_text; ?></span>
+                                        </td>
+                                        <?php if ($role === 'admin'): ?>
+                                            <td>
+                                                <a href="stock_movements.php?action=add&type=in&product_id=<?php echo $product['id']; ?>" class="btn btn-sm btn-primary">Add Stock</a>
+                                            </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php else: ?>
-                <p>No low stock products found.</p>
+                    <p>No low stock products found.</p>
                 <?php endif; ?>
             </div>
-            
+
             <!-- Charts Section -->
             <div class="data-section">
                 <div class="section-header">
                     <h2 class="section-title">Usage Statistics</h2>
                 </div>
-                
+
                 <div class="chart-container">
                     <canvas id="usageChart"></canvas>
                 </div>
-                
+
                 <script>
                     // Initialize usage chart with PHP data
                     document.addEventListener('DOMContentLoaded', function() {
                         const ctx = document.getElementById('usageChart').getContext('2d');
-                        
+
                         new Chart(ctx, {
                             type: 'bar',
                             data: {
@@ -293,22 +295,22 @@ while ($row = $prediction_result->fetch_assoc()) {
                     });
                 </script>
             </div>
-            
+
             <!-- Prediction Chart -->
             <div class="data-section">
                 <div class="section-header">
                     <h2 class="section-title">Stock Depletion Prediction</h2>
                 </div>
-                
+
                 <div class="chart-container">
                     <canvas id="predictionChart"></canvas>
                 </div>
-                
+
                 <script>
                     // Initialize prediction chart with PHP data
                     document.addEventListener('DOMContentLoaded', function() {
                         const ctx = document.getElementById('predictionChart').getContext('2d');
-                        
+
                         new Chart(ctx, {
                             type: 'bar',
                             data: {
@@ -345,63 +347,63 @@ while ($row = $prediction_result->fetch_assoc()) {
                     });
                 </script>
             </div>
-            
+
             <!-- Recent Stock Movements -->
             <div class="data-section">
                 <div class="section-header">
                     <h2 class="section-title">Recent Stock Movements</h2>
                     <?php if ($role === 'admin'): ?>
-                    <div>
-                        <a href="stock_movements.php?action=add&type=in" class="btn btn-success btn-icon">
-                            <i class="fas fa-plus"></i> Stock In
-                        </a>
-                        <a href="stock_movements.php?action=add&type=out" class="btn btn-danger btn-icon">
-                            <i class="fas fa-minus"></i> Stock Out
-                        </a>
-                    </div>
+                        <div>
+                            <a href="stock_movements.php?action=add&type=in" class="btn btn-success btn-icon">
+                                <i class="fas fa-plus"></i> Stock In
+                            </a>
+                            <a href="stock_movements.php?action=add&type=out" class="btn btn-danger btn-icon">
+                                <i class="fas fa-minus"></i> Stock Out
+                            </a>
+                        </div>
                     <?php endif; ?>
                 </div>
-                
+
                 <?php if ($recent_movements->num_rows > 0): ?>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Product</th>
-                                <th>Type</th>
-                                <th>Quantity</th>
-                                <th>Notes</th>
-                                <th>Created By</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($movement = $recent_movements->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo date('Y-m-d H:i', strtotime($movement['date'])); ?></td>
-                                <td><?php echo htmlspecialchars($movement['product_name']); ?></td>
-                                <td>
-                                    <?php if ($movement['type'] === 'in'): ?>
-                                    <span class="text-success"><i class="fas fa-arrow-down"></i> In</span>
-                                    <?php else: ?>
-                                    <span class="text-danger"><i class="fas fa-arrow-up"></i> Out</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo $movement['quantity']; ?></td>
-                                <td><?php echo htmlspecialchars($movement['notes']); ?></td>
-                                <td><?php echo htmlspecialchars($movement['username']); ?></td>
-                            </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Notes</th>
+                                    <th>Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php while ($movement = $recent_movements->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo date('Y-m-d H:i', strtotime($movement['date'])); ?></td>
+                                        <td><?php echo htmlspecialchars($movement['product_name']); ?></td>
+                                        <td>
+                                            <?php if ($movement['type'] === 'in'): ?>
+                                                <span class="text-success"><i class="fas fa-arrow-down"></i> In</span>
+                                            <?php else: ?>
+                                                <span class="text-danger"><i class="fas fa-arrow-up"></i> Out</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo $movement['quantity']; ?></td>
+                                        <td><?php echo htmlspecialchars($movement['notes']); ?></td>
+                                        <td><?php echo htmlspecialchars($movement['username']); ?></td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php else: ?>
-                <p>No recent stock movements found.</p>
+                    <p>No recent stock movements found.</p>
                 <?php endif; ?>
             </div>
         </div>
     </main>
-    
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container footer-content">
@@ -409,7 +411,8 @@ while ($row = $prediction_result->fetch_assoc()) {
             <div class="footer-text">Version 1.0</div>
         </div>
     </footer>
-    
+
     <script src="assets/js/script.js"></script>
 </body>
+
 </html>
