@@ -147,8 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <div class="login-footer">
             <p>Default credentials:</p>
-            <p>Admin: admin / admin123</p>
-            <p>Guest: guest / admin123</p>
+            <p>Admin: admin-rfn / 123456</p>
+            <p>Guest: guest-rfn / 123456</p>
         </div>
     </div>
     
